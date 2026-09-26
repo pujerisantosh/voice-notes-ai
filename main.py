@@ -1,14 +1,11 @@
 from fastapi import FastAPI
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from app.api.routes.audio import router as audio_router
+
 
 app = FastAPI(title="Voice Notes AI")
 
 
-ALLOWED_AUDIO_TYPES = {
-    "audio/mpeg",
-    "audio/wav",
-    "audio/mp4"
-}
+app.include_router(audio_router, prefix="/audio", tags=["Audio"])
 
 
 @app.get("/")
@@ -19,18 +16,3 @@ def home():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
-
-
-@app.post("/audio/upload")
-async def upload_audio(file: UploadFile = File(...)):
-
-    if file.content_type not in ALLOWED_AUDIO_TYPES:
-        raise HTTPException(
-            status_code=415,
-            detail="Unsupported audio file type"
-        )
-
-    return {
-        "filename": file.filename,
-        "content_type": file.content_type
-    }
